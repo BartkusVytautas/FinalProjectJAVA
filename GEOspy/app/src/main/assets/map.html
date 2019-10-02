@@ -1,0 +1,68 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.0.3/leaflet.js"></script>
+    <script src="https://cdn.maptiler.com/mapbox-gl-js/v0.53.0/mapbox-gl.js"></script>
+    <script src="https://cdn.maptiler.com/mapbox-gl-leaflet/latest/leaflet-mapbox-gl.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.0.3/leaflet.css" />
+    <link rel="stylesheet" href="https://cdn.maptiler.com/mapbox-gl-js/v0.53.0/mapbox-gl.css" />
+
+    <style>
+      #map {position: absolute; top: 0; right: 0; bottom: 0; left: 0;}
+
+      .css-icon {
+
+	}
+
+	.gps_ring {
+		border: 3px solid #DD6400;
+		 -webkit-border-radius: 30px;
+		 height: 18px;
+		 width: 18px;
+	    -webkit-animation: pulsate 1s ease-out;
+	    -webkit-animation-iteration-count: infinite;
+	    /*opacity: 0.0*/
+	}
+
+	@-webkit-keyframes pulsate {
+		    0% {-webkit-transform: scale(0.1, 0.1); opacity: 0.0;}
+		    50% {opacity: 1.0;}
+		    100% {-webkit-transform: scale(1.2, 1.2); opacity: 0.0;}
+
+    </style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<script>
+
+var map = L.map('map').setView([55.91192, 21.08037], 13);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+}).addTo(map);
+
+var cssIcon = L.divIcon({
+		  // Specify a class name we can refer to in CSS.
+		  className: 'css-icon',
+		  html: '<div class="gps_ring"></div>'
+		  // Set marker width and height
+		  ,iconSize: [22,22]
+		  // ,iconAnchor: [11,11]
+		});
+
+		// Create three markers and set their icons to cssIcon
+		L.marker([55.91192, 21.08037], {icon: cssIcon}).addTo(map);
+
+
+
+
+</script>
+
+</body>
+
+</html>
+

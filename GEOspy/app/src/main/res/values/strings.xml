@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">GEOspy</string>
+    <string name="title">GEOspy</string>
+    <string name="laoding">Loading...</string>
+</resources>
