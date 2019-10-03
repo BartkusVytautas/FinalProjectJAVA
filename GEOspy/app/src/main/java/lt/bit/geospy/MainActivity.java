@@ -22,6 +22,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 
+import java.io.FileWriter;
+import java.io.IOException;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -50,6 +53,18 @@ public class MainActivity extends AppCompatActivity {
                 latitude = location.getLatitude();
                 longitude = location.getLongitude();
                 Log.d("GPS", "Gautapozicija: " + location.getLatitude() + " " + location.getLongitude());
+//                JSONObject coordinates = new JSONObject();
+//                coordinates.put("latitude", latitude);
+//                coordinates.put("longitude", longitude);
+//                try (FileWriter file = new FileWriter("///android_asset/coordinates.json")) {
+//
+//                    file.write(coordinates.toJSONString());
+//                    file.flush();
+//
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+
 //                runOnUiThread(new Runnable() {
 //                    @Override
 //                    public void run() {
@@ -81,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
         ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, 123);
 
 
-        mLocationManager.requestLocationUpdates(LOCATION_PROVIDER, 15000, 100.0f, mLocationListener);
+        mLocationManager.requestLocationUpdates(LOCATION_PROVIDER, 3000, 1.0f, mLocationListener);
     }
 
     @Override

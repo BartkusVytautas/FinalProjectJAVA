@@ -23,7 +23,7 @@ public class Map implements Runnable {
     public void run() {
         try {
             synchronized (this) {
-                wait(4000);
+                wait(10000);
                 this.activity.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
