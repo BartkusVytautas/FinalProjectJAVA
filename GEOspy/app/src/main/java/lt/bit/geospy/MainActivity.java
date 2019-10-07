@@ -28,6 +28,9 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.sql.Timestamp;
+import java.util.Date;
+
 import cz.msebera.android.httpclient.Header;
 
 
@@ -35,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
 
     public static Double latitude;
     public static Double longitude;
+    public static Timestamp lastUpdated;
 
 
     @Override
@@ -79,10 +83,10 @@ public class MainActivity extends AppCompatActivity {
         thread.start();
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
+
+    public void start() {
         final WebView webView = findViewById(R.id.web);
+
         if (MainActivity.longitude != null && MainActivity.latitude != null) {
             runOnUiThread(new Runnable() {
                 @Override
@@ -90,11 +94,12 @@ public class MainActivity extends AppCompatActivity {
                     webView.getSettings().setJavaScriptEnabled(true);
                     webView.addJavascriptInterface(new JavaScriptInterface(getApplicationContext()), "Android");
                     webView.loadUrl("file:///android_asset/map.html");
+
                 }
             });
 
-
         }
+
     }
 
     @SuppressLint("MissingPermission")
@@ -106,40 +111,36 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public void onLocationChanged(Location location) {
-
-                    latitude = location.getLatitude();
-                    longitude = location.getLongitude();
-                    Log.d("GPS", "Gautapozicija: " + location.getLatitude() + " " + location.getLongitude());
-                    sendCoordinatesToServer(latitude.toString(), longitude.toString());
-                    JSONObject jsonObject = new JSONObject();
-                    try {
-                        jsonObject.put("latitude", latitude);
-                        jsonObject.put("latitude", latitude);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
+                    Timestamp currentTime = new Timestamp(new Date().getTime());
+                    if (lastUpdated == null){
+                        lastUpdated = currentTime;
                     }
+                    if((currentTime.getTime() - lastUpdated.getTime()) >= 10000) {
 
-                    try {
-                        File rootFolder = getApplicationContext().getExternalFilesDir(null);
-                        System.out.println(rootFolder.getAbsolutePath());
-                        File jsonFile = new File(rootFolder, "coordinates.json");
-                        FileWriter writer = new FileWriter(jsonFile);
-                        writer.write(jsonObject.toString());
-                        writer.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-
-
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            WebView webView = findViewById(R.id.web);
-                            webView.getSettings().setJavaScriptEnabled(true);
-                            webView.addJavascriptInterface(new JavaScriptInterface(getApplicationContext()), "Android");
-                            webView.loadUrl("file:///android_asset/map.html");
+                        latitude = location.getLatitude();
+                        longitude = location.getLongitude();
+                        Log.d("GPS", "Gautapozicija: " + location.getLatitude() + " " + location.getLongitude());
+                        sendCoordinatesToServer(latitude.toString(), longitude.toString());
+                        JSONObject jsonObject = new JSONObject();
+                        try {
+                            jsonObject.put("latitude", latitude);
+                            jsonObject.put("latitude", latitude);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
                         }
-                    });
+
+                        try {
+                            File rootFolder = getApplicationContext().getExternalFilesDir(null);
+                            System.out.println(rootFolder.getAbsolutePath());
+                            File jsonFile = new File(rootFolder, "coordinates.txt");
+                            FileWriter writer = new FileWriter(jsonFile);
+                            writer.write(jsonObject.toString());
+                            writer.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    lastUpdated = currentTime;
 
                 }
 
@@ -166,7 +167,10 @@ public class MainActivity extends AppCompatActivity {
         AsyncHttpClient client = new AsyncHttpClient();
         RequestParams rp=new RequestParams();
         TelephonyManager telephonyManager = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
-        String api;
+        String api = "emulator_api";
+        SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+
         try {
             api = telephonyManager.getDeviceId();
             Toast.makeText(getApplicationContext(),api,
@@ -174,18 +178,21 @@ public class MainActivity extends AppCompatActivity {
         }catch (SecurityException e){
             Toast.makeText(getApplicationContext(),"Couldn't connect your phone to server, please contact support.",
                     Toast.LENGTH_LONG).show();
-            return;
+
 
         }
+        editor.putString("api", api);
+        editor.apply();
 
-        rp.add("api", "" + api);
-        client.post("http://pabegeliai.lt/geospy/api/add_new_api",
+        rp.add("key", "" + api);
+
+        client.post("http://pabegeliai.lt:8080/geospy/api/add_new_api",
                 rp, new JsonHttpResponseHandler() {
 
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                         try {
-                            if(response.getString("success").equals("true")) {
+                            if(response.getString("Success").equals("Already exists") || response.getString("Success").equals("New device added successfully")) {
                                 Toast.makeText(getApplicationContext(), "Your phone connected to server successfully",
                                         Toast.LENGTH_LONG).show();
                                 SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
@@ -209,16 +216,20 @@ public class MainActivity extends AppCompatActivity {
     public void sendCoordinatesToServer(String latitude, String longitude){
         AsyncHttpClient client = new AsyncHttpClient();
         RequestParams rp=new RequestParams();
+        SharedPreferences sharedPreferences = getSharedPreferences("prefs", MODE_PRIVATE);
+        String api = sharedPreferences.getString("api", "emulator_api");
         rp.add("latitude", "" + latitude);
         rp.add("longitude", "" + longitude);
-        client.post("http://pabegeliai.lt/geospy/api/add_coordinate",
+        rp.add("key", api);
+        System.out.println(api);
+        client.post("http://pabegeliai.lt:8080/geospy/api/add_coordinates",
                 rp, new JsonHttpResponseHandler() {
 
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                         try {
                             if(response.getString("success").equals("true")) {
-                                Toast.makeText(getApplicationContext(), "Coordinates added",
+                                Toast.makeText(getApplicationContext(), "Coordinates sent",
                                         Toast.LENGTH_SHORT).show();
 
                             }else{

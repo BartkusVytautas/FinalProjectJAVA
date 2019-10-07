@@ -7,12 +7,12 @@ import android.widget.TextView;
 
 public class Map implements Runnable {
 
-    private Activity activity;
+    private MainActivity activity;
     private WebView webView;
     private TextView loading;
     private TextView header;
 
-    public Map(Activity activity, WebView webView, TextView loading, TextView header) {
+    public Map(MainActivity activity, WebView webView, TextView loading, TextView header) {
         this.activity = activity;
         this.webView = webView;
         this.loading = loading;
@@ -25,6 +25,7 @@ public class Map implements Runnable {
             while (true) {
                 Thread.sleep(1000);
                 if (MainActivity.longitude != null && MainActivity.latitude != null) {
+                    this.activity.start();
                     synchronized (this) {
                         wait(3000);
                         this.activity.runOnUiThread(new Runnable() {
