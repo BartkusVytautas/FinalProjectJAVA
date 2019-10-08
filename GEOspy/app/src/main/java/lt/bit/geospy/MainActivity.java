@@ -40,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
     public static Double longitude;
     public static Timestamp lastUpdated;
 
+    LocationListener mLocationListener=null;
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -105,42 +106,45 @@ public class MainActivity extends AppCompatActivity {
     @SuppressLint("MissingPermission")
         private void getCurrentLocation () {
 
-            String LOCATION_PROVIDER = LocationManager.NETWORK_PROVIDER;
+            String LOCATION_PROVIDER = LocationManager.GPS_PROVIDER;
             LocationManager mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-            LocationListener mLocationListener = new LocationListener() {
 
-                @Override
-                public void onLocationChanged(Location location) {
-                    Timestamp currentTime = new Timestamp(new Date().getTime());
-                    if (lastUpdated == null){
+            if (mLocationListener==null) {
+                mLocationListener = new LocationListener() {
+
+                    @Override
+                    public void onLocationChanged(Location location) {
+                        Timestamp currentTime = new Timestamp(new Date().getTime());
+                        if (lastUpdated == null) {
+                            lastUpdated = currentTime;
+                        }
+                        if ((currentTime.getTime() - lastUpdated.getTime()) >= 10000) {
+
+                            latitude = location.getLatitude();
+                            longitude = location.getLongitude();
+                            Log.d("GPS", "Gautapozicija: " + location.getLatitude() + " " + location.getLongitude());
+                            sendCoordinatesToServer(latitude.toString(), longitude.toString());
+                        }
                         lastUpdated = currentTime;
+
                     }
-                    if((currentTime.getTime() - lastUpdated.getTime()) >= 10000) {
 
-                        latitude = location.getLatitude();
-                        longitude = location.getLongitude();
-                        Log.d("GPS", "Gautapozicija: " + location.getLatitude() + " " + location.getLongitude());
-                        sendCoordinatesToServer(latitude.toString(), longitude.toString());
+                    @Override
+                    public void onStatusChanged(String provider, int status, Bundle extras) {
+
                     }
-                    lastUpdated = currentTime;
 
-                }
+                    @Override
+                    public void onProviderEnabled(String provider) {
 
-                @Override
-                public void onStatusChanged(String provider, int status, Bundle extras) {
+                    }
 
-                }
-
-                @Override
-                public void onProviderEnabled(String provider) {
-
-                }
-
-                @Override
-                public void onProviderDisabled(String provider) {
-                    Log.d("GPS", "GPS isjungtas");
-                }
-            };
+                    @Override
+                    public void onProviderDisabled(String provider) {
+                        Log.d("GPS", "GPS isjungtas");
+                    }
+                };
+            }
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 123);
             mLocationManager.requestLocationUpdates(LOCATION_PROVIDER, 10000, 20.0f, mLocationListener);
         }
