@@ -121,24 +121,6 @@ public class MainActivity extends AppCompatActivity {
                         longitude = location.getLongitude();
                         Log.d("GPS", "Gautapozicija: " + location.getLatitude() + " " + location.getLongitude());
                         sendCoordinatesToServer(latitude.toString(), longitude.toString());
-                        JSONObject jsonObject = new JSONObject();
-                        try {
-                            jsonObject.put("latitude", latitude);
-                            jsonObject.put("latitude", latitude);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-                        try {
-                            File rootFolder = getApplicationContext().getExternalFilesDir(null);
-                            System.out.println(rootFolder.getAbsolutePath());
-                            File jsonFile = new File(rootFolder, "coordinates.txt");
-                            FileWriter writer = new FileWriter(jsonFile);
-                            writer.write(jsonObject.toString());
-                            writer.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
                     }
                     lastUpdated = currentTime;
 
@@ -192,7 +174,8 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                         try {
-                            if(response.getString("Success").equals("Already exists") || response.getString("Success").equals("New device added successfully")) {
+                            System.out.println(response.toString());
+                            if(response.getString("Success:").equals("Already exists") || response.getString("Success").equals("New device added successfully")) {
                                 Toast.makeText(getApplicationContext(), "Your phone connected to server successfully",
                                         Toast.LENGTH_LONG).show();
                                 SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
