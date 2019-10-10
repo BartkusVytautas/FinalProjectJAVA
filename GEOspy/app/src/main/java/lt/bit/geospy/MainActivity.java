@@ -163,7 +163,7 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(),api,
                     Toast.LENGTH_LONG).show();
         }catch (SecurityException e){
-            Toast.makeText(getApplicationContext(),"Couldn't connect your phone to server, please contact support.",
+            Toast.makeText(getApplicationContext(),"Couldn't get your EMEI code, please contact support.",
                     Toast.LENGTH_LONG).show();
 
 
