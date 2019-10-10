@@ -47,7 +47,7 @@ function getLongitude(){
     return Android.getLongitude();
 }
 
-var map = L.map('map').setView([getLatitude(), getLongitude()], 13);
+var map = L.map('map').setView([Android.getLatitude(), Android.getLongitude()], 14);
 
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -63,12 +63,15 @@ var cssIcon = L.divIcon({
 		});
 
 		// Create three markers and set their icons to cssIcon
-		L.marker([Android.getLatitude(), Android.getLongitude()], {icon: cssIcon}).addTo(map);
+		var marker = L.marker([Android.getLatitude(), Android.getLongitude()], {icon: cssIcon}).addTo(map);
 
+function update(){
+    map.flyTo([getLatitude(), getLongitude()] , 14);
+    marker.setLatLng([getLatitude(), getLongitude()]);
 
+}
 
-setInterval(getLatitude,10000);
-setInterval(getLongitude,10000);
+setInterval(update,10000);
 
 
 

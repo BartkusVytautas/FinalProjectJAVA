@@ -106,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
     @SuppressLint("MissingPermission")
         private void getCurrentLocation () {
 
-            String LOCATION_PROVIDER = LocationManager.GPS_PROVIDER;
+            String LOCATION_PROVIDER = LocationManager.NETWORK_PROVIDER;
             LocationManager mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
             if (mLocationListener==null) {
@@ -114,6 +114,7 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public void onLocationChanged(Location location) {
+
                         Timestamp currentTime = new Timestamp(new Date().getTime());
                         if (lastUpdated == null) {
                             lastUpdated = currentTime;
